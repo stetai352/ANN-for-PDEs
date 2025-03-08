@@ -99,11 +99,18 @@ def model_test(model_rom, model_reductor, test_set = test_set):
 
 U_rb,  rb_speedups,  absolute_rb_errors,  relative_rb_errors  =  model_test(rb_rom, rb_reductor)
 
-for iLayers in [[30, 30, 30], [42, 42, 42], [25, 25, 25, 25]]:
+log_file = "log250308.txt"
+
+for iLayers in [[42, 42], [57, 57], [30, 30, 30], [42, 42, 42], [25, 25, 25, 25]]:
+    
+    f.open(log_file, "a")
+    f.write(f'Hidden layers have structure {iLayers}\n')
+    f.close()
+    
     for iOptimizer in [optim.Adam, optim.LBFGS]:
         for iLearning_rate in [1, 1e-3, 1e-5]:
 
-            f = open("log250308.txt", "a")
+            f = open(log_file, "a")
             f.write(f'ANN has {iLayers}, {iOptimizer}, {iLearning_rate}\n') #adjust layers
             t = PrettyTable(['', 'avg absolute error', 'var absolute error', 'max absolute error', 'avg relative error', 'var relative error', 'max relative error', 'avg speedup', 'var speedup', 'min speedup', 'training time'])
             t.align = 'l'
