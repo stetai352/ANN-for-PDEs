@@ -103,10 +103,10 @@ log_file = "log250308.txt"
 
 for iLayers in [[42, 42], [57, 57], [30, 30, 30], [42, 42, 42], [25, 25, 25, 25]]:
     
-    f.open(log_file, "a")
+    f = open(log_file, "a")
     f.write(f'Hidden layers have structure {iLayers}\n')
     f.close()
-    
+
     for iOptimizer in [optim.Adam, optim.LBFGS]:
         for iLearning_rate in [1, 1e-3, 1e-5]:
 
