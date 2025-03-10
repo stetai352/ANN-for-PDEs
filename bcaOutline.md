@@ -95,12 +95,18 @@
 
 ### Training a feedforward artificial neural network
 - Training
+    - realized using `pytorch` Python library
     - train on empiric data (here simulated by previously computed FOM data, established as accurate technique)
     - gather these from snapshots $(\mu, u)$
-    - compare predictions with actual data, minimizing Loss Function.
-    - realized using `pytorch` Python library
+    - 
+    - compare predictions with actual data, minimizing Loss Function using MSE (Mean Squared Error)
+    $$\mathcal{L} = \frac{1}{N}\Sigma_{i=1}^N ||y_i - \hat{y}_i||^2$$
+    - Update weights using gradient descent (with learning rate $\eta$)
+    $$W^{(l)} = W^{(l)} - \eta \frac{\partial\mathcal{L}}{\partial W^{(l)}}$$
+    - Iterate through multiple epochs until $\mathcal{L}$ stops decreasing (early stopping when it increases again)
 - Validation
-    - Confirm training's accuracy on ranges between training data
+    - Confirm training's accuracy on test points different from training data
+- Manually tune hyperparameters (one of the subjects of this work)
 - Drawbacks and counter-measures
     - Overfitting -> early stopping when error on validation set increases 
     - Vanishing/exploding gradient problem -> use activation functions like ReLU, Tanh, Sigmoid
