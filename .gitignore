@@ -1,3 +1,6 @@
 __pycache__
 TODO.md
 archive.py
+ann-for-pdes.ipynb
+model_classes.py
+visualize_models.py
