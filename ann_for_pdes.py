@@ -99,16 +99,16 @@ def model_test(model_rom, model_reductor, test_set = test_set):
 
 U_rb,  rb_speedups,  absolute_rb_errors,  relative_rb_errors  =  model_test(rb_rom, rb_reductor)
 
-log_file = "log250308.txt"
+log_file = "log250309.txt"
 
-for iLayers in [[42, 42], [57, 57], [30, 30, 30], [42, 42, 42], [25, 25, 25, 25]]:
+for iLayers in [[42, 42], [56, 56], [100, 100], [30, 30, 30], [100, 100, 100]]:
     
     f = open(log_file, "a")
     f.write(f'Hidden layers have structure {iLayers}\n')
     f.close()
 
-    for iOptimizer in [optim.Adam, optim.LBFGS]:
-        for iLearning_rate in [1, 1e-3, 1e-5]:
+    for iOptimizer in [optim.LBFGS, optim.Adam]:
+        for iLearning_rate in [1e-5, 1e-3, 0.1, 1]:
 
             f = open(log_file, "a")
             f.write(f'ANN has {iLayers}, {iOptimizer}, {iLearning_rate}\n') #adjust layers
@@ -119,7 +119,7 @@ for iLayers in [[42, 42], [57, 57], [30, 30, 30], [42, 42, 42], [25, 25, 25, 25]
                     f'{np.average(rb_speedups)}', f'{np.var(rb_speedups)}', f'{np.min(rb_speedups)}',
                     f'{rb_training_time}'])
 
-            for iBasis_size in [10, 30, 90]:
+            for iBasis_size in [5, 10, 30, 100, 1e3]:
 
                 try:
                     toc = time.perf_counter()
@@ -130,7 +130,7 @@ for iLayers in [[42, 42], [57, 57], [30, 30, 30], [42, 42, 42], [25, 25, 25, 25]
 
                     ann_rom = ann_reductor.reduce(hidden_layers = iLayers, restarts=10, optimizer = iOptimizer, epochs = 15000, learning_rate = iLearning_rate, log_loss_frequency = 100)
 
-                    ann_training_time = time.perf_counter()
+                    ann_training_time = time.perf_counter() - toc
 
                     ### Speedup testing
 
@@ -147,6 +147,9 @@ for iLayers in [[42, 42], [57, 57], [30, 30, 30], [42, 42, 42], [25, 25, 25, 25]
 
                     #print(f'ts_solve: {np.average(ts_solve)}\nts_recon: {np.average(ts_recon)}\nts_rb:    {np.average(ts_rb)}\nts_fom:   {np.average(ts_fom)}')
                 
+                except KeyboardInterrupt:
+                    print("Process terminated.")
+                    exit()
                 except:
                     f.write(f'An error has occurred\n')
             
