@@ -12,7 +12,7 @@
 - Definition
     - partial differential equations
     - Used to simulate behaviour of closed systems 
-- TODO Examples
+- Real-world examples where elliptic PDEs provide good models
 
 ### Parameterized PDEs
 - Motivation
@@ -20,15 +20,6 @@
 - Functionality
     - Enables efficient exploration of parameter space
     - Allows for quick adaptation to new scenarios without solving from scratch
-
-### Linear vs non-linear systems
-- Definitions
-    - Linear systems
-        - typical behaviour
-    - Non-linear systems
-        - formal definition
-        - ex. turbulence, material deformation
-        - expensive to simulate
 
 ## Model Order Reduction
 - Definition
@@ -98,7 +89,6 @@
     - realized using `pytorch` Python library
     - train on empiric data (here simulated by previously computed FOM data, established as accurate technique)
     - gather these from snapshots $(\mu, u)$
-    - 
     - compare predictions with actual data, minimizing Loss Function using MSE (Mean Squared Error)
     $$\mathcal{L} = \frac{1}{N}\Sigma_{i=1}^N ||y_i - \hat{y}_i||^2$$
     - Update weights using gradient descent (with learning rate $\eta$)
@@ -133,12 +123,12 @@
 - Try various combinations in hidden layers' layout
 
 ### Experiment 2
-- Consider non-linear equations for comparison?
+- Consider non-linear equations for comparison? Not yet relevant.
 - Execute with both ANN and RB method
 
 ### Experiment 3
 - Consider real-life experiment, context depends on the previous two experiments, which one shows best improvement
-- Exxecute with both ANN and RB method
+- Execute with both ANN and RB method                   
 
 ### Comparison
 - Compare the benefits and drawbacks of ANN for solving PDEs using the three (or more) examples addressed in this paper.
@@ -155,5 +145,12 @@
 ## Future
 - Further research in optimal network layout
 - Explore hybrid models combining ANN and classical numerical solvers
+- Potential improvement to be expected on non-linear systems
+    - Linear systems
+        - typical behaviour
+    - Non-linear systems
+        - formal definition
+        - ex. turbulence, material deformation
+        - expensive to simulate
 
 ## Appendix

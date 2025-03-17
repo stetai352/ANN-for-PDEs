@@ -4,6 +4,7 @@ from pymor.basic import *
 from pymor.reductors.neural_network import NeuralNetworkReductor
 import time
 import numpy as np
+import torch
 import torch.optim as optim
 # For ROM
 from pymor.parameters.functionals import ExpressionParameterFunctional
@@ -57,10 +58,11 @@ def model_test(model_rom, model_reductor, test_set = test_set):
                 relative_model_errors = (U_fom - U_model).norm() / U_fom.norm()
                 return U_model, model_speedups, absolute_model_errors, relative_model_errors
 
-log_file = "log250312.txt"
+log_file = "log250315.txt"
 iLayers_list = [#[42, 42], 
-                [56, 56], [100, 100], [30, 30, 30], [100, 100, 100]]
+                [100, 100], [30, 30, 30], [100, 100, 100]]
 iBasis_size_list = [5, 10, 20, 30, 100]
+iActivation_function_list = [torch.relu, torch.sigmoid, torch.tanh]
 iOptimizer_list = [optim.LBFGS, optim.Adam]
 iLearning_rate_list = [1e-5, 1e-3, 0.1, 1]
 
@@ -114,50 +116,51 @@ for iLayers in iLayers_list:
     f.write(str(t))
     f.write("\n")
     f.close()
+    for iActivation_function in iActivation_function_list:
+        for iOptimizer in iOptimizer_list:
+            for iLearning_rate in iLearning_rate_list:
 
-    for iOptimizer in iOptimizer_list:
-        for iLearning_rate in iLearning_rate_list:
+                f = open(log_file, "a")
+                f.write(f'ANN has {iLayers}, {iActivation_function}, {iOptimizer}, {iLearning_rate}\n') #adjust layers
+                print(f'ANN has {iLayers}, {iActivation_function}, {iOptimizer}, {iLearning_rate}\n')
+                t = PrettyTable(['', 'AVG ABSOLUTE ERROR', 'var absolute error', 'max absolute error', 'AVG RELATIVE ERROR', 'var relative error', 'max relative error', 'AVG SPEEDUP', 'var speedup', 'min speedup', 'training time'])
+                t.align = 'l'
 
-            f = open(log_file, "a")
-            f.write(f'ANN has {iLayers}, {iOptimizer}, {iLearning_rate}\n') #adjust layers
-            t = PrettyTable(['', 'AVG ABSOLUTE ERROR', 'var absolute error', 'max absolute error', 'AVG RELATIVE ERROR', 'var relative error', 'max relative error', 'AVG SPEEDUP', 'var speedup', 'min speedup', 'training time'])
-            t.align = 'l'
+                for iBasis_size in iBasis_size_list:
 
-            for iBasis_size in iBasis_size_list:
+                    try:
+                        
+                        # ann reductor
+                        toc = time.perf_counter()
 
-                try:
+                        ann_reductor = NeuralNetworkReductor(
+                            fom, training_set, validation_set, basis_size = iBasis_size, ann_mse = None #initially l2_err=1e-5, ann_mse=1e-5
+                        )
+
+                        ann_rom = ann_reductor.reduce(hidden_layers = iLayers, activation_function=iActivation_function, restarts=10, optimizer = iOptimizer, epochs = 15000, learning_rate = iLearning_rate, log_loss_frequency = 100)
+
+                        ann_training_time = time.perf_counter() - toc
+
+                        ### Speedup testing
+
+                        U_ann, ann_speedups, absolute_ann_errors, relative_ann_errors =  model_test(ann_rom, ann_reductor)      
+
+                        # output
+
+                        t.add_row([f'ANN basis {iBasis_size}', f'{np.average(absolute_ann_errors)}', f'{np.var(absolute_ann_errors)}', f'{np.max(absolute_ann_errors)}', 
+                                f'{np.average(relative_ann_errors)}', f'{np.var(relative_ann_errors)}', f'{np.max(relative_ann_errors)}', 
+                                f'{np.average(ann_speedups)}', f'{np.var(ann_speedups)}', f'{np.min(ann_speedups)}',
+                                f'{ann_training_time}'])
+                        
+                        print(t)
                     
-                    # ann reductor
-                    toc = time.perf_counter()
+                    except KeyboardInterrupt:
+                        print("Process terminated.")
+                        exit()
 
-                    ann_reductor = NeuralNetworkReductor(
-                        fom, training_set, validation_set, basis_size = iBasis_size, ann_mse = None #initially l2_err=1e-5, ann_mse=1e-5
-                    )
-
-                    ann_rom = ann_reductor.reduce(hidden_layers = iLayers, restarts=10, optimizer = iOptimizer, epochs = 15000, learning_rate = iLearning_rate, log_loss_frequency = 100)
-
-                    ann_training_time = time.perf_counter() - toc
-
-                    ### Speedup testing
-
-                    U_ann, ann_speedups, absolute_ann_errors, relative_ann_errors =  model_test(ann_rom, ann_reductor)      
-
-                    # output
-
-                    t.add_row([f'ANN basis {iBasis_size}', f'{np.average(absolute_ann_errors)}', f'{np.var(absolute_ann_errors)}', f'{np.max(absolute_ann_errors)}', 
-                            f'{np.average(relative_ann_errors)}', f'{np.var(relative_ann_errors)}', f'{np.max(relative_ann_errors)}', 
-                            f'{np.average(ann_speedups)}', f'{np.var(ann_speedups)}', f'{np.min(ann_speedups)}',
-                            f'{ann_training_time}'])
-                    
-                    print(t)
+                    except:
+                        f.write(f'An error has occurred\n')
                 
-                except KeyboardInterrupt:
-                    print("Process terminated.")
-                    exit()
-
-                except:
-                    f.write(f'An error has occurred\n')
-            
-            f.write(str(t))
-            f.write("\n")
-            f.close()
+                f.write(str(t))
+                f.write("\n")
+                f.close()
