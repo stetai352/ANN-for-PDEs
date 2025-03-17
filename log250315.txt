@@ -22,7 +22,7 @@ ANN has [42, 42], <built-in method relu of type object at 0x00007FF8B0DBC560>, <
 ANN has [42, 42], <built-in method relu of type object at 0x00007FF8B0DBC560>, <class 'torch.optim.lbfgs.LBFGS'>, 0.001
 
 #################################################
-first try failed. second try:
+first try failed. second try (20hours wtf): 
 #################################################
 
 Hidden layers have structure [100, 100]
