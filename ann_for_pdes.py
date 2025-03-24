@@ -14,7 +14,8 @@ from pymor.algorithms.greedy import rb_greedy
 from prettytable import PrettyTable
 # For functionality
 from problem_definition import defineSinusoidProblem
-from model_classes import *
+# gpu access
+#torch.set_default_device('rocm')
 
 ### define wave problem 5 #
 
@@ -58,9 +59,8 @@ def model_test(model_rom, model_reductor, test_set = test_set):
                 relative_model_errors = (U_fom - U_model).norm() / U_fom.norm()
                 return U_model, model_speedups, absolute_model_errors, relative_model_errors
 
-log_file = "log250315.txt"
-iLayers_list = [#[42, 42], 
-                [100, 100], [30, 30, 30], [100, 100, 100]]
+log_file = "log250320.txt"
+iLayers_list = [[42, 42], [54, 54], [30, 30, 30]]
 iBasis_size_list = [5, 10, 20, 30, 100]
 iActivation_function_list = [torch.relu, torch.sigmoid, torch.tanh]
 iOptimizer_list = [optim.LBFGS, optim.Adam]
@@ -137,22 +137,25 @@ for iLayers in iLayers_list:
                             fom, training_set, validation_set, basis_size = iBasis_size, ann_mse = None #initially l2_err=1e-5, ann_mse=1e-5
                         )
 
-                        ann_rom = ann_reductor.reduce(hidden_layers = iLayers, activation_function=iActivation_function, restarts=10, optimizer = iOptimizer, epochs = 15000, learning_rate = iLearning_rate, log_loss_frequency = 100)
+                        ann_rom = ann_reductor.reduce(hidden_layers = iLayers, activation_function=iActivation_function, restarts=10, optimizer = iOptimizer, epochs = 10000, learning_rate = iLearning_rate, log_loss_frequency = 100)
 
                         ann_training_time = time.perf_counter() - toc
 
                         ### Speedup testing
 
-                        U_ann, ann_speedups, absolute_ann_errors, relative_ann_errors =  model_test(ann_rom, ann_reductor)      
+                        U_ann, ann_speedups, absolute_ann_errors, relative_ann_errors =  model_test(ann_rom, ann_reductor)
 
                         # output
 
                         t.add_row([f'ANN basis {iBasis_size}', f'{np.average(absolute_ann_errors)}', f'{np.var(absolute_ann_errors)}', f'{np.max(absolute_ann_errors)}', 
                                 f'{np.average(relative_ann_errors)}', f'{np.var(relative_ann_errors)}', f'{np.max(relative_ann_errors)}', 
                                 f'{np.average(ann_speedups)}', f'{np.var(ann_speedups)}', f'{np.min(ann_speedups)}',
-                                f'{ann_training_time}'])
-                        
+                                f'{ann_training_time}'])                    
+
                         print(t)
+
+                        losses = ann_reductor.losses
+                        f.write(f'{str(losses)}\n')
                     
                     except KeyboardInterrupt:
                         print("Process terminated.")
