@@ -59,12 +59,13 @@ def model_test(model_rom, model_reductor, test_set = test_set):
                 relative_model_errors = (U_fom - U_model).norm() / U_fom.norm()
                 return U_model, model_speedups, absolute_model_errors, relative_model_errors
 
-log_file = "log250320.txt"
-iLayers_list = [[42, 42], [54, 54], [30, 30, 30]]
-iBasis_size_list = [5, 10, 20, 30, 100]
+log_file = "log250404.txt"
+iLayers_list = [[42, 42], [30, 30, 30]]
+iBasis_size_list = [5, 10, 20, 30, 50] # values beyond 50 are too high to sensibly show any improvement because they are too close to test quantity 3^3 = 81
 iActivation_function_list = [torch.relu, torch.sigmoid, torch.tanh]
-iOptimizer_list = [optim.LBFGS, optim.Adam]
-iLearning_rate_list = [1e-5, 1e-3, 0.1, 1]
+#iOptimizer_list = [optim.LBFGS, optim.Adam]
+#iLearning_rate_list = [1e-5, 1e-3, 0.1, 1]
+iOptim_LR_list = [(optim.LBFGS, 1), (optim.Adam, 1e-5), (optim.Adam, 1e-3), (optim.Adam, 0.1)]
 
 for iLayers in iLayers_list:
     
@@ -117,8 +118,7 @@ for iLayers in iLayers_list:
     f.write("\n")
     f.close()
     for iActivation_function in iActivation_function_list:
-        for iOptimizer in iOptimizer_list:
-            for iLearning_rate in iLearning_rate_list:
+            for iOptimizer, iLearning_rate in iOptim_LR_list:
 
                 f = open(log_file, "a")
                 f.write(f'ANN has {iLayers}, {iActivation_function}, {iOptimizer}, {iLearning_rate}\n') #adjust layers

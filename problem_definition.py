@@ -23,7 +23,7 @@ def defineSinusoidProblem():
         parameter_ranges = (0.1, 1.),
     )
 
-    fom, data = discretize_stationary_cg(problem, diameter = 1/50)
+    fom, data = discretize_stationary_cg(problem, diameter = 1/200)
 
     """mu = [0.1,1,0.1,1]
     U = fom.solve(mu)
