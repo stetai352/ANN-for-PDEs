@@ -71,7 +71,7 @@ def model_test(model_rom, model_reductor, test_set = test_set):
 
 ### Run Tests #
 
-log_file = "log250404.txt"
+log_file = "log250405.txt"
 
 iLayers_list = [[42, 42], [30, 30, 30]]
 iBasis_size_list = [5, 10, 20, 30, 50] # values beyond 50 are too high to sensibly show any improvement because they are too close to test quantity 3^3 = 81

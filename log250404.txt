@@ -106,3 +106,4 @@ ANN has [42, 42], <built-in method sigmoid of type object at 0x00007FFB4D1DEE80>
 ## Try No. 02 ##
 ################
 
+N/A
